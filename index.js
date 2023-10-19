@@ -26,6 +26,7 @@ async function run() {
     try {
 
         const productCollection = client.db("productsDB").collection("products");
+        const cartCollection = client.db("productsDB").collection("cart");
         app.get('/products', async (req, res) => {
             const cursor = productCollection.find();
             const result = await cursor.toArray()
@@ -48,6 +49,50 @@ async function run() {
         })
 
 
+        app.put('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const newData = req.body;
+            // console.log(req.params.id)
+            const filter = { _id: new ObjectId(id) };
+            const option = { upsert: true };
+            const updateData = {
+                $set: {
+                    image: newData.image,
+                    name: newData.name,
+                    brand: newData.brand,
+                    category: newData.category,
+                    price: newData.price,
+                    description: newData.description,
+                    rating: newData.rating,
+                }
+            }
+            const result = await productCollection.updateOne(filter, updateData, option);
+            res.send(result)
+
+            //     console.log(newData.image,
+            //         newData.name,
+            //         newData.brand,
+            //         newData.category,
+            //         newData.price,
+            //         newData.description,
+            //         newData.rating,)
+        })
+
+
+        // cart section
+
+        app.get('/cart', async (req, res) => {
+            const cursor = cartCollection.find();
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+
+        app.post('/cart', async (req, res) => {
+            const product = req.body;
+            console.log(product)
+            const result = await cartCollection.insertOne(product);
+            res.send(result)
+        })
 
         // Connect the client to the server	(optional starting in v4.7)
         await client.connect();
