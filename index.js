@@ -2,14 +2,14 @@ const express = require('express');
 const app = express();
 const cors = require("cors");
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
 
 
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.DB_USER, process.env.DB_PASS)
+// console.log(process.env.DB_USER, process.env.DB_PASS)
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.shpjug3.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -32,9 +32,13 @@ async function run() {
             res.send(result)
         })
 
-        // app.get('/products/:category', async(req, res)=>{
-
-        // })
+        app.get('/products/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            console.log(query)
+            const result = await productCollection.findOne(query);
+            res.send(result)
+        })
 
         app.post('/products', async (req, res) => {
             const product = req.body;
